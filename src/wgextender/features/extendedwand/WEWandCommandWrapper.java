@@ -27,12 +27,12 @@ import wgextender.utils.CommandUtils;
 public class WEWandCommandWrapper extends Command {
 
 	public static void inject(Config config) {
-		WEWandCommandWrapper wrapper = new WEWandCommandWrapper(config, CommandUtils.getCommands().get("/wand"));
+		WEWandCommandWrapper wrapper = new WEWandCommandWrapper(config, CommandUtils.getCommands().getCommand("/wand"));
 		CommandUtils.replaceCommand(wrapper.originalCmd, wrapper);
 	}
 
 	public static void uninject() {
-		WEWandCommandWrapper wrapper = (WEWandCommandWrapper) CommandUtils.getCommands().get("/wand");
+		WEWandCommandWrapper wrapper = (WEWandCommandWrapper) CommandUtils.getCommands().getCommand("/wand");
 		CommandUtils.replaceCommand(wrapper, wrapper.originalCmd);
 	}
 

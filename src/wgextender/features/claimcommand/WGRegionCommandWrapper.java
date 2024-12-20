@@ -32,12 +32,12 @@ import static org.bukkit.ChatColor.YELLOW;
 public class WGRegionCommandWrapper extends Command {
 
 	public static void inject(Config config) {
-		WGRegionCommandWrapper wrapper = new WGRegionCommandWrapper(config, CommandUtils.getCommands().get("region"));
+		WGRegionCommandWrapper wrapper = new WGRegionCommandWrapper(config, CommandUtils.getCommands().getCommand("region"));
 		CommandUtils.replaceCommand(wrapper.originalCmd, wrapper);
 	}
 
 	public static void uninject() {
-		WGRegionCommandWrapper wrapper = (WGRegionCommandWrapper) CommandUtils.getCommands().get("region");
+		WGRegionCommandWrapper wrapper = (WGRegionCommandWrapper) CommandUtils.getCommands().getCommand("region");
 		CommandUtils.replaceCommand(wrapper, wrapper.originalCmd);
 	}
 

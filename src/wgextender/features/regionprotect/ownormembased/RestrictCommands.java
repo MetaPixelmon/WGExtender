@@ -45,12 +45,11 @@ public class RestrictCommands implements Listener {
 
 	public RestrictCommands(Config config) {
 		this.config = config;
-		restrictedCommands = config.restrictedCommandsInRegion;
-        Bukkit.getAsyncScheduler().runAtFixedRate(
-                WGExtender.getInstance(),
-                (task) -> commandRecheckTask(config),
-                TICK, TICK * 100, TimeUnit.MILLISECONDS
-        );
+		this.restrictedCommands = config.restrictedCommandsInRegion;
+
+		Bukkit.getScheduler().runTaskTimerAsynchronously(
+				WGExtender.getInstance(), () -> commandRecheckTask(config), TICK, TICK * 100 / 50
+		);
 	}
 
 	private void commandRecheckTask(Config config) {

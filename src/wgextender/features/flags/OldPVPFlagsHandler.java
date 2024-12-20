@@ -1,6 +1,7 @@
 package wgextender.features.flags;
 
 import com.google.common.base.Function;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -81,10 +82,9 @@ public class OldPVPFlagsHandler implements Listener {
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		handlePlayer(player);
-		player.getScheduler().runAtFixedRate(WGExtender.getInstance(),
-				(task) -> handlePlayer(player),
-				() -> reset(player),
-				1, 1
+
+		Bukkit.getScheduler().runTaskTimer(WGExtender.getInstance(),
+				() -> handlePlayer(player), 20L, 20L
 		);
 	}
 

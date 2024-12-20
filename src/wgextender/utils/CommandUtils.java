@@ -19,7 +19,9 @@ package wgextender.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,35 +29,56 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class CommandUtils {
-	public static Map<String, Command> getCommands() {
-		return Bukkit.getCommandMap().getKnownCommands();
+	public static CommandMap getCommands() {
+		try {
+			Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+			commandMapField.setAccessible(true);
+			return (CommandMap) commandMapField.get(Bukkit.getServer());
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
 	}
 
 	public static List<String> getCommandAliases(String commandName) {
-		Command command = getCommands().get(commandName);
+		CommandMap commandMap = getCommands();
+		if (commandMap == null) {
+			return Collections.singletonList(commandName);
+		}
+
+		Command command = commandMap.getCommand(commandName);
 		if (command == null) {
 			return Collections.singletonList(commandName);
-		} else {
-			List<String> aliases = new ArrayList<>();
-			aliases.add(commandName);
-			for (Entry<String, Command> entry : getCommands().entrySet()) {
+		}
+
+		List<String> aliases = new ArrayList<>();
+		aliases.add(commandName);
+
+		try {
+			Field knownCommandsField = commandMap.getClass().getDeclaredField("knownCommands");
+			knownCommandsField.setAccessible(true);
+
+			Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+			for (Map.Entry<String, Command> entry : knownCommands.entrySet()) {
 				if (entry.getValue().equals(command)) {
 					aliases.add(entry.getKey());
 				}
 			}
-			return aliases;
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			throw new RuntimeException(e.getMessage(), e);
 		}
+
+		return aliases;
 	}
 
 	public static void replaceCommand(Command oldCommand, Command newCommand) {
 		String cmdName = oldCommand.getName();
 		var commandMap = getCommands();
-		if (commandMap.get(cmdName).equals(oldCommand)) {
-			commandMap.put(cmdName, newCommand);
+		if (commandMap.getCommand(cmdName).equals(oldCommand)) {
+			commandMap.register(cmdName, newCommand);
 		}
 		for (String alias : oldCommand.getAliases()) {
-			if (commandMap.get(alias).equals(oldCommand)) {
-				commandMap.put(alias, newCommand);
+			if (commandMap.getCommand(alias).equals(oldCommand)) {
+				commandMap.register(alias, newCommand);
 			}
 		}
 	}
